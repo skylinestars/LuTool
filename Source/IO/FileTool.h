@@ -13,6 +13,8 @@ namespace LuTool
 		static bool FolderExists(const std::string& folderName);
 		static bool CreateFileFolder(const std::string& fileName);
 		static void SaveFile(const std::string& fileName, std::string& context);
+		static void CompressToFile(const std::string& filename, const std::string& content);
+		static std::string DecompressFromFile(const std::string& filename);
 	};
 }
 #endif // !LUTOOL_FILETOOL

@@ -1,5 +1,6 @@
 set(PROJECT_NAME LuTool)
 # 配置目录结构
+set(CMAKE_CXX_STANDARD 17)
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/Source")
 
 group_sources("${SOURCE_DIR}" "${CMAKE_SOURCE_DIR}")
@@ -9,8 +10,11 @@ file(GLOB_RECURSE header_file "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 add_library(${PROJECT_NAME} SHARED ${source_file} ${header_file})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                     ${CMAKE_CURRENT_SOURCE_DIR}                  
+                     ${CMAKE_CURRENT_SOURCE_DIR}   
+                     ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/include
 )
+target_link_libraries( ${PROJECT_NAME} PUBLIC 
+                     ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/lib/liblz4.lib)
   
 # 设置输出目录（可选）  
 set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")  

@@ -5,15 +5,29 @@
 #include <iostream>
 #ifdef _WIN32
 #include <direct.h>
+#include <windows.h>
+#include <intrin.h> 
 #else
 #include <sys/stat.h>
 #include <iconv.h>
 #include <cstring>
+#include <cpuid.h>
 #endif
 #include<vector>
 #include <codecvt>
-
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <cstdint>
+#include <limits>
 using namespace std;
+using namespace std::chrono;
+
+const std::string LuTool::StrTool::base64_chars =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz"
+"0123456789+/";
+
 std::string LuTool::StrTool::TryConvertToGb2312(std::string const& str)
 {
     if (IsTextUTF8(str.c_str(), str.size()))
@@ -219,4 +233,260 @@ void LuTool::StrTool::GetPathNameAndSuffix(const std::string& filePath, std::str
 void LuTool::StrTool::NormalPath(std::string& filePath)
 {
     replace(filePath.begin(), filePath.end(), '\\', '/'); //替换'\'为'/
+}
+
+std::vector<std::string> LuTool::StrTool::SplitString(const std::string& str, const std::string& delimiter)
+{
+    std::vector<std::string> tokens;
+    size_t start = 0;
+    size_t end = str.find(delimiter);
+
+    while (end != std::string::npos) {
+        tokens.push_back(str.substr(start, end - start));
+        start = end + delimiter.length();
+        end = str.find(delimiter, start);
+    }
+
+    tokens.push_back(str.substr(start));
+    return tokens;
+}
+
+std::string LuTool::StrTool::GetAuthorization(long useDays, std::string machCode)
+{
+    /// 1、授权码拼凑：标志+是否有机器码+机器码（可能没有）+到期时间戳
+    /// 2、将授权码字符串异或加密
+    /// 3、将授权码字符串凯撒加密
+    /// 4、将授权码字符串进行base64编码
+    std::string authCode = "AMRT#";
+    if (machCode.length() > 1)
+    {
+        authCode.append("Y#");
+        authCode.append(machCode);
+        authCode.append("#");
+    }
+    else
+    {
+        authCode.append("N#");
+    }
+    auto now = system_clock::now();
+    auto future = now + hours(24 * useDays);
+    time_t future_time = system_clock::to_time_t(future);
+    authCode.append(std::to_string(future_time));
+    /*stringstream ss;
+    ss << put_time(localtime(&future_time), "%Y-%m-%d");
+    string future_date_str = ss.str();*/
+    return Base64Encode(Encryption(authCode));
+}
+
+bool LuTool::StrTool::IsExpir(std::string& authorCode)
+{
+    std::string code = Decrypt(Base64Decode(authorCode));
+    std::vector<std::string> tokens = SplitString(code, "#");
+    std::string endTimeStr = "";
+    if (tokens.size() < 3)
+    {
+        return false;
+    }
+    if (tokens[0] != "AMRT")
+    {
+        return false;
+    }
+    if (tokens[1] == "Y")
+    {
+        if (tokens.size() != 4)
+        {
+            return false;
+        }
+        //机器码判断
+        std::string cpuid = getCPUID();
+        if (tokens[2] != cpuid)
+        {
+            return false;
+        }
+        endTimeStr = tokens[3];
+    }
+    else
+    {
+        endTimeStr = tokens[2];
+    }
+    auto now = system_clock::to_time_t(system_clock::now());
+    long end = std::stol(endTimeStr);
+    if (now > end)
+    {
+        return false;
+    }
+    return true;
+}
+
+std::string LuTool::StrTool::Encryption(std::string& str)
+{
+    string temp = CaesarEncrypt(str, 4);
+    return XorEncryptDecrypt(temp, 'L');
+}
+
+std::string LuTool::StrTool::Decrypt(std::string& str)
+{
+    string temp = XorEncryptDecrypt(str, 'L');
+    return CaesarDecrypt(temp, 4);
+}
+
+bool is_base64(unsigned char c) 
+{
+    return (isalnum(c) || (c == '+') || (c == '/'));
+}
+
+std::string LuTool::StrTool::Base64Decode(std::string& encoded_string)
+{
+    size_t in_len = encoded_string.size();
+    int i = 0;
+    int j = 0;
+    int in_ = 0;
+    unsigned char char_array_4[4], char_array_3[3];
+    std::string ret;
+
+    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
+        char_array_4[i++] = encoded_string[in_]; in_++;
+        if (i == 4) {
+            for (i = 0; i < 4; i++)
+                char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+            for (i = 0; (i < 3); i++)
+                ret += char_array_3[i];
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (j = i; j < 4; j++)
+            char_array_4[j] = 0;
+
+        for (j = 0; j < 4; j++)
+            char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+        for (j = 0; (j < i - 1); j++)
+            ret += char_array_3[j];
+    }
+
+    return ret;
+}
+
+std::string LuTool::StrTool::Base64Encode(std::string& input)
+{
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+    size_t in_len = input.size();
+    const char* bytes_to_encode = input.data();
+
+    while (in_len--) {
+        char_array_3[i++] = *(bytes_to_encode++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4); i++)
+                ret += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (j = 0; (j < i + 1); j++)
+            ret += base64_chars[char_array_4[j]];
+
+        while ((i++ < 3))
+            ret += '=';
+    }
+
+    return ret;
+}
+
+std::string LuTool::StrTool::getCPUID()
+{
+    std::stringstream ss;
+
+#ifdef _WIN32
+    // Windows平台使用__cpuid intrinsic
+    int cpuInfo[4] = { 0 };
+    __cpuid(cpuInfo, 0);
+
+    char vendor[13] = { 0 };
+    *reinterpret_cast<int*>(vendor) = cpuInfo[1];
+    *reinterpret_cast<int*>(vendor + 4) = cpuInfo[3];
+    *reinterpret_cast<int*>(vendor + 8) = cpuInfo[2];
+
+    ss << "Vendor: " << vendor;
+
+    // 获取处理器信息（如果可用）
+    if (cpuInfo[0] >= 1) {
+        __cpuid(cpuInfo, 1);
+        ss << ", Processor: " << std::hex
+            << (cpuInfo[3] >> 24) << (cpuInfo[3] >> 16 & 0xFF)
+            << (cpuInfo[3] >> 8 & 0xFF) << (cpuInfo[3] & 0xFF);
+    }
+#else
+    // Linux平台使用__get_cpuid
+    unsigned int eax, ebx, ecx, edx;
+    __get_cpuid(0, &eax, &ebx, &ecx, &edx);
+
+    char vendor[13] = { 0 };
+    memcpy(vendor, &ebx, 4);
+    memcpy(vendor + 4, &edx, 4);
+    memcpy(vendor + 8, &ecx, 4);
+
+    ss << "Vendor: " << vendor;
+
+    if (__get_cpuid_max(0, nullptr) >= 1) {
+        __get_cpuid(1, &eax, &ebx, &ecx, &edx);
+        ss << ", Processor: " << std::hex << eax;
+    }
+#endif
+
+    return ss.str();
+}
+
+std::string LuTool::StrTool::XorEncryptDecrypt(const std::string& input, char key)
+{
+    std::string output = input;
+    for (size_t i = 0; i < input.size(); ++i) {
+        output[i] = input[i] ^ key;
+    }
+    return output;
+}
+
+
+std::string LuTool::StrTool::CaesarEncrypt(string text, int shift)
+{
+    for (char& c : text) {
+        if (isalpha(c)) {
+            char base = islower(c) ? 'a' : 'A';
+            c = base + (c - base + shift) % 26;
+        }
+    }
+    return text;
+}
+
+std::string LuTool::StrTool::CaesarDecrypt(std::string text, int shift)
+{
+    return CaesarEncrypt(text, 26 - (shift % 26)); // 利用模运算特性解密
 }

@@ -2,6 +2,8 @@
 #define LUTOOL_STRTOOL
 #include <string>
 #include <Common/Common.h>
+#include <iostream>
+#include <vector>
 namespace LuTool
 {
 	class LUTOOL_EXPORTS StrTool
@@ -17,6 +19,21 @@ namespace LuTool
 		static void GetPathName(const std::string& filePath, std::string& fileName);
 		static void GetPathNameAndSuffix(const std::string& filePath, std::string& fileName);
 		static void NormalPath(std::string& filePath);
+		static std::vector<std::string> SplitString(const std::string& str, const std::string& delimiter);
+
+		static std::string GetAuthorization(long useDays, std::string machCode="");
+		static bool IsExpir(std::string& authorCode);
+		static std::string Encryption(std::string& str);
+		static std::string Decrypt(std::string& str);
+		static std::string Base64Decode(std::string& str);
+		static std::string Base64Encode(std::string& str);
+		static std::string getCPUID();
+	private:
+		static std::string XorEncryptDecrypt(const std::string& input, char key);
+		static std::string CaesarEncrypt(std::string text, int shift);
+		static std::string CaesarDecrypt(std::string text, int shift);
+	private:
+		static const  std::string base64_chars;
 	};
 
 }
