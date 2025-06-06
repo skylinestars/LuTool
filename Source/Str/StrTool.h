@@ -1,7 +1,7 @@
 #ifndef LUTOOL_STRTOOL
 #define LUTOOL_STRTOOL
 #include <string>
-#include <Common/Common.h>
+#include "../Common/Common.h"
 #include <iostream>
 #include <vector>
 namespace LuTool

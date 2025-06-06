@@ -16,6 +16,7 @@ int main(int argc, char** argv)
 	LOG_INFO("Log: 授权码程序日志");
 	long day = 0;
 	std::string machine = "";
+	bool isGetMachine = false;
 	for (unsigned int i = 1; i < argc; ++i)
 	{
 		std::string value = argv[i];
@@ -29,15 +30,19 @@ int main(int argc, char** argv)
 			++i;
 			machine = argv[i];
 		}
+		if (value == "-getMachine")
+		{
+			std::string code = StrTool::getCPUID();
+			LOG_INFO("machine code:", code);
+			return 0;
+		}
 	}
+	
 	std::string authorCode = StrTool::GetAuthorization(day, machine);
-	std::cout << authorCode << std::endl;
-
 	FileTool::CompressToFile("x.bin", authorCode);
 
 	std::string fileData = FileTool::DecompressFromFile("x.bin");
-	std::cout << fileData << std::endl;
-	bool status = StrTool::IsExpir(authorCode);
-	std::cout << status << std::endl;
+	bool status = StrTool::IsExpir(fileData);
+	LOG_INFO("status:", status);
 	return 0;
 }

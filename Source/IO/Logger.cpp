@@ -13,7 +13,6 @@ Logger::Logger()
 Logger& LuTool::Logger::getInstance()
 {
     static Logger instance;
-    std::cout << &instance << std::endl;
     return instance;
 }
 

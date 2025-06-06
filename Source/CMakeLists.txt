@@ -1,6 +1,7 @@
 set(PROJECT_NAME LuTool)
 # 配置目录结构
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(SOURCE_DIR "${CMAKE_SOURCE_DIR}/Source")
 
 group_sources("${SOURCE_DIR}" "${CMAKE_SOURCE_DIR}")
@@ -29,6 +30,6 @@ install(TARGETS ${PROJECT_NAME}
   
 # 安装头文件  
 install(DIRECTORY ${SOURCE_DIR}  
-    DESTINATION include  # 安装到 ${CMAKE_INSTALL_PREFIX}/include，保持原有目录结构  
+    DESTINATION include/LuTool # 安装到 ${CMAKE_INSTALL_PREFIX}/include，保持原有目录结构  
     FILES_MATCHING PATTERN "*.h"  # 只安装 .h 文件 
 )

@@ -2,7 +2,7 @@
 #define LUTOOL_FILETOOL
 
 #include <string>
-#include <Common/Common.h>
+#include "../Common/Common.h"
 namespace LuTool
 {
 	class LUTOOL_EXPORTS FileTool

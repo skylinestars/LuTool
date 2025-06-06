@@ -271,7 +271,7 @@ std::string LuTool::StrTool::GetAuthorization(long useDays, std::string machCode
     auto now = system_clock::now();
     auto future = now + hours(24 * useDays);
     time_t future_time = system_clock::to_time_t(future);
-    authCode.append(std::to_string(future_time));
+    authCode.append(std::to_string(future_time));//"1705816390"
     /*stringstream ss;
     ss << put_time(localtime(&future_time), "%Y-%m-%d");
     string future_date_str = ss.str();*/
@@ -285,23 +285,23 @@ bool LuTool::StrTool::IsExpir(std::string& authorCode)
     std::string endTimeStr = "";
     if (tokens.size() < 3)
     {
-        return false;
+        return true;
     }
     if (tokens[0] != "AMRT")
     {
-        return false;
+        return true;
     }
     if (tokens[1] == "Y")
     {
         if (tokens.size() != 4)
         {
-            return false;
+            return true;
         }
         //机器码判断
         std::string cpuid = getCPUID();
         if (tokens[2] != cpuid)
         {
-            return false;
+            return true;
         }
         endTimeStr = tokens[3];
     }
@@ -313,9 +313,9 @@ bool LuTool::StrTool::IsExpir(std::string& authorCode)
     long end = std::stol(endTimeStr);
     if (now > end)
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 std::string LuTool::StrTool::Encryption(std::string& str)
@@ -462,7 +462,7 @@ std::string LuTool::StrTool::getCPUID()
     }
 #endif
 
-    return ss.str();
+    return Base64Encode(ss.str());
 }
 
 std::string LuTool::StrTool::XorEncryptDecrypt(const std::string& input, char key)

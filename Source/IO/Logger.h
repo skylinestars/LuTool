@@ -1,7 +1,7 @@
 // logger.h
 #ifndef LOGGER_H
 #define LOGGER_H
-#include "Common/Common.h"
+#include "../Common/Common.h"
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -72,17 +72,17 @@ public:
     }
 
     // 快捷宏定义
-    #define LOG_ASYN_DEBUG(...) Logger::getInstance().log(LogLevel::LOG_DEBUG, __VA_ARGS__)
-    #define LOG_ASYN_INFO(...)  Logger::getInstance().log(LogLevel::LOG_INFO, __VA_ARGS__)
-    #define LOG_ASYN_WARN(...)  Logger::getInstance().log(LogLevel::LOG_WARNING, __VA_ARGS__)
-    #define LOG_ASYN_ERROR(...) Logger::getInstance().log(LogLevel::LOG_ERROR, __VA_ARGS__)
-    #define LOG_ASYN_FATAL(...) Logger::getInstance().log(LogLevel::LOG_FATAL, __VA_ARGS__)
+    #define LOG_ASYN_DEBUG(...) LuTool::Logger::getInstance().log(LuTool::LogLevel::LOG_DEBUG, __VA_ARGS__)
+    #define LOG_ASYN_INFO(...)  LuTool::Logger::getInstance().log(LuTool::LogLevel::LOG_INFO, __VA_ARGS__)
+    #define LOG_ASYN_WARN(...)  LuTool::Logger::getInstance().log(LuTool::LogLevel::LOG_WARNING, __VA_ARGS__)
+    #define LOG_ASYN_ERROR(...) LuTool::Logger::getInstance().log(LuTool::LogLevel::LOG_ERROR, __VA_ARGS__)
+    #define LOG_ASYN_FATAL(...) LuTool::Logger::getInstance().log(LuTool::LogLevel::LOG_FATAL, __VA_ARGS__)
     
-    #define LOG_DEBUG(...) Logger::getInstance().syncLog(LogLevel::LOG_DEBUG, __VA_ARGS__)
-    #define LOG_INFO(...)  Logger::getInstance().syncLog(LogLevel::LOG_INFO, __VA_ARGS__)
-    #define LOG_WARN(...)  Logger::getInstance().syncLog(LogLevel::LOG_WARNING, __VA_ARGS__)
-    #define LOG_ERROR(...) Logger::getInstance().syncLog(LogLevel::LOG_ERROR, __VA_ARGS__)
-    #define LOG_FATAL(...) Logger::getInstance().syncLog(LogLevel::LOG_FATAL, __VA_ARGS__)
+    #define LOG_DEBUG(...) LuTool::Logger::getInstance().syncLog(LuTool::LogLevel::LOG_DEBUG, __VA_ARGS__)
+    #define LOG_INFO(...)  LuTool::Logger::getInstance().syncLog(LuTool::LogLevel::LOG_INFO, __VA_ARGS__)
+    #define LOG_WARN(...)  LuTool::Logger::getInstance().syncLog(LuTool::LogLevel::LOG_WARNING, __VA_ARGS__)
+    #define LOG_ERROR(...) LuTool::Logger::getInstance().syncLog(LuTool::LogLevel::LOG_ERROR, __VA_ARGS__)
+    #define LOG_FATAL(...) LuTool::Logger::getInstance().syncLog(LuTool::LogLevel::LOG_FATAL, __VA_ARGS__)
 
 private:
     Logger();
