@@ -1,0 +1,29 @@
+cmake_minimum_required(VERSION 3.15)
+project(LoggerTest)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 查找fmt库（可选）
+find_package(fmt QUIET)
+
+# 添加可执行文件
+add_executable(test_logger test_logger.cpp Source/IO/Logger.cpp)
+
+# 设置包含目录
+target_include_directories(test_logger PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Source
+)
+
+# 链接库
+if(fmt_FOUND)
+    target_link_libraries(test_logger PRIVATE fmt::fmt)
+endif()
+
+# 在Windows上链接线程库
+if(WIN32)
+    target_link_libraries(test_logger PRIVATE)
+else()
+    target_link_libraries(test_logger PRIVATE pthread)
+endif() 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 PROJECT (LuTool CXX)
 
-set(CMAKE_CXX_STANDARD 11)  
+set(CMAKE_CXX_STANDARD 17)  
 set(CMAKE_CXX_STANDARD_REQUIRED True)  
 option(LUTOOL_EXPORTS_OPTION "Enable export" ON)
 option(SAMPLE "Enable Sample" ON)

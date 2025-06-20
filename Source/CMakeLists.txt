@@ -14,8 +14,24 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                      ${CMAKE_CURRENT_SOURCE_DIR}   
                      ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/include
 )
-target_link_libraries( ${PROJECT_NAME} PUBLIC 
+
+# 链接库
+target_link_libraries(${PROJECT_NAME} PUBLIC 
                      ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/lib/liblz4.lib)
+
+
+
+set(FMT_DIR "D:/Soft/FMT")
+if(EXISTS "${FMT_DIR}")
+    message("Found fmt library at: ${FMT_DIR}")
+    set(fmt_DIR "${FMT_DIR}/lib/cmake/fmt")
+    find_package(fmt REQUIRED)
+    add_definitions(-DFMT_FOUND)
+    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
+else()
+    message("fmt library not found in custom paths.")
+endif()
+
   
 # 设置输出目录（可选）  
 set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")  
