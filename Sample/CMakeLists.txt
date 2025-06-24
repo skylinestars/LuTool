@@ -6,31 +6,21 @@ project( ${TARGET_NAME} )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-ADD_EXECUTABLE(${TARGET_NAME} test_logger.cpp)#test_logger.cpp
+ADD_EXECUTABLE(${TARGET_NAME} test_logger.cpp)
 
-target_include_directories( ${TARGET_NAME} PUBLIC 
-				${CMAKE_SOURCE_DIR}/Source)
+# 使用find_package方式依赖LuTool
+# 设置LuTool的安装路径，让CMake能找到LuToolConfig.cmake
+set(CMAKE_PREFIX_PATH "D:/Soft/LuToolRel;${CMAKE_PREFIX_PATH}")
 
-#target_link_libraries( ${TARGET_NAME} PUBLIC LuTool)
+# 查找LuTool包
+find_package(LuTool REQUIRED)
 
-#LuTool
-set(LUTOOL_LIB_RELEASE "D:/Soft/LuTool/lib/release/LuTool.lib")
-set(LUTOOL_LIB_DEBUG "D:/Soft/LuTool/lib/debug/LuTool.lib")
-set(LUTOOL_DLL_RELEASE "D:/Soft/LuTool/bin/release/LuTool.dll")
-set(LUTOOL_DLL_DEBUG "D:/Soft/LuTool/bin/debug/LuTool.dll")
-set(LUTOOL_INCLUDE "D:/Soft/LuTool/include")
-set(HAS_FMT_LIB)
-target_include_directories(${TARGET_NAME} PUBLIC 
-  ${LUTOOL_INCLUDE})
-target_link_libraries(${TARGET_NAME} PUBLIC ${LUTOOL_LIB_DEBUG})
+# 链接LuTool库 - 这会自动处理所有依赖（包括FMT）
+target_link_libraries(${TARGET_NAME} PUBLIC LuTool::LuTool)
 
-set(FMT_DIR "D:/Soft/FMT")
-if(EXISTS "${FMT_DIR}")
-    message("Found fmt library at: ${FMT_DIR}")
-    set(fmt_DIR "${FMT_DIR}/lib/cmake/fmt")
-    find_package(fmt REQUIRED)
-    add_definitions(-DFMT_FOUND)
-    target_link_libraries(${TARGET_NAME} PUBLIC fmt::fmt)
-else()
-    message("fmt library not found in custom paths.")
-endif()
+# 包含LuTool的头文件目录
+target_include_directories(${TARGET_NAME} PUBLIC ${LuTool_INCLUDE_DIRS})
+
+message("LuTool found: ${LuTool_FOUND}")
+message("LuTool version: ${LuTool_VERSION}")
+message("LuTool build type: ${LuTool_BUILD_TYPE}")

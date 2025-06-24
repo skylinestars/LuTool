@@ -1,0 +1,51 @@
+@PACKAGE_INIT@
+
+# 包含LuTool的目标
+include("${CMAKE_CURRENT_LIST_DIR}/LuToolTargets.cmake")
+
+# 设置LuTool的包含目录
+set_and_check(LuTool_INCLUDE_DIRS "@PACKAGE_LuTool_INCLUDE_DIRS@")
+
+# 检查LuTool的依赖
+check_required_components(LuTool)
+
+# 设置LuTool的版本信息
+set(LuTool_VERSION "@PACKAGE_VERSION@")
+set(LuTool_VERSION_MAJOR "@PACKAGE_VERSION_MAJOR@")
+set(LuTool_VERSION_MINOR "@PACKAGE_VERSION_MINOR@")
+set(LuTool_VERSION_PATCH "@PACKAGE_VERSION_PATCH@")
+
+# 检查FMT依赖
+# 如果LuTool使用了FMT，我们需要确保FMT也被找到
+if(NOT TARGET fmt::fmt)
+    find_package(fmt QUIET)
+    if(NOT fmt_FOUND)
+        message(WARNING "LuTool requires fmt library, but fmt not found. Please install fmt library.")
+    endif()
+endif()
+
+# 设置LuTool的编译定义
+add_definitions(-DLUTOOL_HAS_FMT=1)
+
+# 设置LuTool的链接库
+set(LuTool_LIBRARIES LuTool::LuTool)
+
+# 多配置支持
+# 检查当前构建类型
+if(CMAKE_BUILD_TYPE)
+    set(LuTool_BUILD_TYPE ${CMAKE_BUILD_TYPE})
+else()
+    # 对于多配置生成器（如Visual Studio），检查当前配置
+    if(CMAKE_CONFIGURATION_TYPES)
+        set(LuTool_BUILD_TYPE "Multi-Config")
+    else()
+        set(LuTool_BUILD_TYPE "Unknown")
+    endif()
+endif()
+
+# 设置LuTool的库文件路径（用于调试信息）
+set(LuTool_LIBRARY_DIRS "${CMAKE_INSTALL_PREFIX}/lib")
+set(LuTool_BINARY_DIRS "${CMAKE_INSTALL_PREFIX}/bin")
+
+# 导出LuTool的配置信息
+set(LuTool_FOUND TRUE) 

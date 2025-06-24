@@ -11,41 +11,64 @@ file(GLOB_RECURSE header_file "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 add_library(${PROJECT_NAME} SHARED ${source_file} ${header_file})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                     ${CMAKE_CURRENT_SOURCE_DIR}   
-                     ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/include
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/include>
+    $<INSTALL_INTERFACE:include/LuTool/Source>
 )
 
 # 链接库
 target_link_libraries(${PROJECT_NAME} PUBLIC 
+                     fmt::fmt
                      ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/lib/liblz4.lib)
-
-
-
-set(FMT_DIR "D:/Soft/FMT")
-if(EXISTS "${FMT_DIR}")
-    message("Found fmt library at: ${FMT_DIR}")
-    set(fmt_DIR "${FMT_DIR}/lib/cmake/fmt")
-    find_package(fmt REQUIRED)
-    add_definitions(-DFMT_FOUND)
-    target_link_libraries(${PROJECT_NAME} PUBLIC fmt::fmt)
-else()
-    message("fmt library not found in custom paths.")
-endif()
-
   
 # 设置输出目录（可选）  
 set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")  
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")  
   
-# 安装库文件  
+# 安装库文件 - 支持多配置
 install(TARGETS ${PROJECT_NAME}  
+    EXPORT LuToolTargets
     LIBRARY DESTINATION lib  # 安装到 ${CMAKE_INSTALL_PREFIX}/lib  
     ARCHIVE DESTINATION lib  # 对于静态库，也安装到 ${CMAKE_INSTALL_PREFIX}/lib  
     RUNTIME DESTINATION bin  # 对于可执行文件（如果有的话），安装到 ${CMAKE_INSTALL_PREFIX}/bin  
+    CONFIGURATIONS Debug Release RelWithDebInfo MinSizeRel
 )  
   
 # 安装头文件  
 install(DIRECTORY ${SOURCE_DIR}  
     DESTINATION include/LuTool # 安装到 ${CMAKE_INSTALL_PREFIX}/include，保持原有目录结构  
     FILES_MATCHING PATTERN "*.h"  # 只安装 .h 文件 
+)
+
+# 安装导出目标
+install(EXPORT LuToolTargets
+    FILE LuToolTargets.cmake
+    NAMESPACE LuTool::
+    DESTINATION lib/cmake/LuTool
+)
+
+# 创建Config文件
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/LuToolConfigVersion.cmake"
+    VERSION 1.0.0
+    COMPATIBILITY AnyNewerVersion
+)
+
+# 设置Config文件需要的变量
+set(LuTool_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/include/LuTool/Source")
+
+# 创建Config.cmake文件
+configure_package_config_file(
+    "${CMAKE_SOURCE_DIR}/CMake/LuToolConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/LuToolConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/LuTool
+    PATH_VARS LuTool_INCLUDE_DIRS
+)
+
+# 安装Config文件
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/LuToolConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/LuToolConfigVersion.cmake"
+    DESTINATION lib/cmake/LuTool
 )

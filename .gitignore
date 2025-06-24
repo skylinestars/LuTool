@@ -1,3 +1,2 @@
 .vs/
-buildDebug/
-build/
+build*/

@@ -13,29 +13,9 @@
 #include <condition_variable>
 #include <queue>
 #include <functional>
-#if FMT_FOUND
 #include <fmt/format.h>
 #include <fmt/ostream.h>
-#endif
 
-
-// 如果没有fmt库，尝试使用C++20的std::format
-#if !FMT_FOUND
-    #if __cplusplus >= 202002L
-        #include <format>
-        #define HAS_STD_FORMAT 1
-    #else
-        #define HAS_STD_FORMAT 0
-    #endif
-#endif
-
-// 在头文件中定义，确保所有编译单元使用同一个实例
-// logger.h (Project B)
-#ifdef _MSC_VER
-#define LOGGING_API __declspec(selectany)
-#else
-#define LOGGING_API __attribute__((weak))
-#endif
 
 namespace LuTool{
 
@@ -64,23 +44,13 @@ public:
         
         std::lock_guard<std::mutex> lock(mutex_);
         std::string message;
-        
-        #if FMT_FOUND
-            try {
-                message = fmt::format(format, args...);
-            } catch (const std::exception& e) {
-                message = fmt::format("Format error: {} - Original format: {}", e.what(), format);
-            }
-        #elif HAS_STD_FORMAT
-            try {
-                message = std::format(format, args...);
-            } catch (const std::exception& e) {
-                message = std::format("Format error: {} - Original format: {}", e.what(), format);
-            }
-        #else
-            // 回退方案：简单的字符串拼接
-            message = format;
-        #endif
+        try
+        {
+            message = fmt::format(format, args...);
+        }
+        catch (const std::exception& e) {
+            message = fmt::format("Format error: {} - Original format: {}", e.what(), format);
+        }
         
         std::stringstream ss;
         formatHeader(ss, level);
@@ -97,23 +67,14 @@ public:
         if (logLevel_ > level) return;
         
         std::string message;
-        
-        #if FMT_FOUND
-            try {
-                message = fmt::format(format, args...);
-            } catch (const std::exception& e) {
-                message = fmt::format("Format error: {} - Original format: {}", e.what(), format);
-            }
-        #elif HAS_STD_FORMAT
-            try {
-                message = std::format(format, args...);
-            } catch (const std::exception& e) {
-                message = std::format("Format error: {} - Original format: {}", e.what(), format);
-            }
-        #else
-            // 回退方案：简单的字符串拼接
-            message = format;
-        #endif
+        try 
+        {
+            message = fmt::format(format, args...);
+        }
+        catch (const std::exception& e) 
+        {
+            message = fmt::format("Format error: {} - Original format: {}", e.what(), format);
+        }
         
         std::stringstream ss;
         formatHeader(ss, level);

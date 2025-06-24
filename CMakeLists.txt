@@ -4,22 +4,20 @@ PROJECT (LuTool CXX)
 set(CMAKE_CXX_STANDARD 17)  
 set(CMAKE_CXX_STANDARD_REQUIRED True)  
 option(LUTOOL_EXPORTS_OPTION "Enable export" ON)
-option(SAMPLE "Enable Sample" ON)
+option(SAMPLE "Enable Sample" OFF)
 if(LUTOOL_EXPORTS_OPTION)
 	add_definitions(-DLUTOOL_EXPORTS_OPTION)
 endif()
+set (CMAKE_BUILD_TYPE Release CACHE STRING "build type(Debug,Release)")
 
-if(WIN32)
-	set(CMAKE_INSTALL_PREFIX "D:/Soft/${PROJECT_NAME}")  
-
-elseif(UNIX)
-	set(CMAKE_INSTALL_PREFIX "/usr/local/${PROJECT_NAME}")  
+if(CMAKE_BUILD_TYPE MATCHES Release)
+set(FMT_DIR "D:/Soft/FMT_Rel")
+else()
+set(FMT_DIR "D:/Soft/FMT")
 endif()
+set(fmt_DIR "${FMT_DIR}/lib/cmake/fmt")
+find_package(fmt REQUIRED)
 
-message("Install presfix ${CMAKE_INSTALL_PREFIX}")
-
-#CMAKE_BUILD_TYPE
-set (CMAKE_BUILD_TYPE Debug CACHE STRING "build type(Debug,Release)")
 
 include(CMake/Utils.cmake)
 ADD_SUBDIRECTORY (Source)
