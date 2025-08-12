@@ -197,38 +197,38 @@ void LuTool::StrTool::GetPathFolder(const std::string& filePath, std::string& fi
 {
     std::string filePathTemp = filePath;
     NormalPath(filePathTemp);
-    std::string::size_type rx = filePath.rfind('/');
+    std::string::size_type rx = filePathTemp.rfind('/');
     if (rx == string::npos)
     {
         return;
     }
     fileName.clear();
-    fileName.append(filePath.substr(0, rx));
+    fileName.append(filePathTemp.substr(0, rx));
 }
 void LuTool::StrTool::GetPathName(const std::string& filePath, std::string& fileName)
 {
     std::string filePathTemp = filePath;
     NormalPath(filePathTemp);
-    std::string::size_type rx = filePath.rfind('/');
-    std::string::size_type dian = filePath.rfind('.');
+    std::string::size_type rx = filePathTemp.rfind('/');
+    std::string::size_type dian = filePathTemp.rfind('.');
     if (rx == string::npos || dian == string::npos)
     {
         return;
     }
     fileName.clear();
-    fileName.append(filePath.substr(rx + 1, dian - rx - 1));
+    fileName.append(filePathTemp.substr(rx + 1, dian - rx - 1));
 }
 void LuTool::StrTool::GetPathNameAndSuffix(const std::string& filePath, std::string& fileName)
 {
     std::string filePathTemp = filePath;
     NormalPath(filePathTemp);
-    std::string::size_type rx = filePath.rfind('/');
+    std::string::size_type rx = filePathTemp.rfind('/');
     if (rx == string::npos)
     {
         return;
     }
     fileName.clear();
-    fileName.append(filePath.substr(rx + 1, filePath.size() - rx - 1));
+    fileName.append(filePathTemp.substr(rx + 1, filePathTemp.size() - rx - 1));
 }
 void LuTool::StrTool::NormalPath(std::string& filePath)
 {

@@ -70,6 +70,21 @@ Logger支持多种格式化方式，按优先级自动选择：
 - `LOG_ASYN_ERROR(format, ...)`: 异步错误日志
 - `LOG_ASYN_FATAL(format, ...)`: 异步致命错误日志
 
+#### Bool类型支持
+Logger完全支持bool类型的直接输出，自动格式化为"true"/"false"：
+
+```cpp
+bool isEnabled = true;
+bool isVisible = false;
+
+// 直接使用现有的日志宏，bool值会自动格式化为"true"/"false"
+LOG_INFO("功能状态 - 启用: {}, 可见: {}", isEnabled, isVisible);
+LOG_DEBUG("调试信息 - 启用状态: {}", isEnabled);
+LOG_WARN("警告信息 - 错误状态: {}", hasError);
+```
+
+**注意**: 通过fmt库的formatter特化，bool值会自动格式化为"true"或"false"字符串，而不是默认的数字1/0。
+
 ### 字符串工具 (StrTool)
 提供字符串处理功能。
 

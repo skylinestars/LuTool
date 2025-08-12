@@ -12,14 +12,12 @@ add_library(${PROJECT_NAME} SHARED ${source_file} ${header_file})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/include>
     $<INSTALL_INTERFACE:include/LuTool/Source>
 )
 
 # 链接库
 target_link_libraries(${PROJECT_NAME} PUBLIC 
-                     fmt::fmt
-                     ${CMAKE_SOURCE_DIR}/Thirdparty/lz4_1.10/lib/liblz4.lib)
+                     fmt::fmt)
   
 # 设置输出目录（可选）  
 set_target_properties(${PROJECT_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")  

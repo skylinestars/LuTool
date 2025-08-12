@@ -2,6 +2,7 @@
 #include "Logger.h"
 using namespace LuTool;
 
+
 Logger::Logger() 
     : logLevel_(LogLevel::LOG_INFO),
       running_(false),
